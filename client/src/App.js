@@ -139,7 +139,7 @@ class App extends Component {
               {this.state.searchResults.artists.map(artist => (
                 <div key={artist.id}>
                   {artist.images.length > 0 && (
-                    <img src={artist.images[0].url} alt={artist.name} width='120' height='120' />
+                    <img src={artist.images[0].url} alt={artist.name} width='75' height='75' />
                   )}
                   {artist.name}
                 </div>
