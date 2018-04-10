@@ -199,10 +199,11 @@ class App extends Component {
             </div>
             {searchResults.artists.length > 0 && (
               <div>
-                <h2>Results</h2>
-                <h3> Artists </h3>
+              <h3> Artists </h3>
+              <hr />
+              <div className="resultsContainer">
                 {searchResults.artists.map(artist => (
-                  <div key={artist.id}>
+                  <div className="artistItem" key={artist.id}>
                     <img
                       src={
                         artist.images.length > 0
@@ -210,15 +211,16 @@ class App extends Component {
                           : "http://via.placeholder.com/75x75"
                       }
                       alt={artist.name}
+                      className="artistImage"
                       width="75"
                       height="75"
                     />
-                    {artist.id}
                     <button onClick={() => this.playArtist(artist.id)}>
-                      Play {artist.name}
+                      {artist.name}
                     </button>
                   </div>
                 ))}
+              </div>
               </div>
             )}
           </div>
