@@ -1,7 +1,13 @@
+body {
+  background: #000;
+  min-height: 100vh;
+  color: #fff;
+}
 .App {
   width: 960px;
-  margin: auto;
+  margin: 20px auto;
   padding: 20px;
+  text-align: center;
 }
 
 .App-logo {
@@ -31,11 +37,49 @@
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0,0,0,0);
+  clip: rect(0, 0, 0, 0);
   border: 0;
 }
 
+.controlButton {
+  padding: 10px;
+}
+
+.searchButton {
+  height: 36px;
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: #666;
+  color: #fff;
+  border-radius: 3px;
+}
+
+.trackInfo {
+  padding: 7px;
+}
+
+input {
+  height: 24px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  min-width: 250px;
+}
+button {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
 @keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

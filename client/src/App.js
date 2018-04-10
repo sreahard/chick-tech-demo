@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import querystring from "query-string";
 import SpotifyWebApi from "spotify-web-api-js";
-import { FaPlay, FaPause, FaBackward, FaForward } from 'react-icons/lib/fa'
+import { FaPlay, FaPause, FaBackward, FaForward, FaSearch } from 'react-icons/lib/fa'
 import "./App.css";
 
 const spotifyApi = new SpotifyWebApi();
@@ -39,8 +39,8 @@ class App extends Component {
   }
 
   getNowPlaying() {
-    spotifyApi.getMyCurrentPlaybackState().then(response => {
-      if (response) {
+    spotifyApi.getMyCurrentPlaybackState().then((response, error) => {
+      if (response && !error) {
         const { item, device, is_playing } = response;
         this.setState({
           nowPlaying: {
@@ -140,7 +140,6 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.state.nowPlaying);
     const {
       isPlaying,
       searchValue,
@@ -154,16 +153,21 @@ class App extends Component {
           <a href="http://localhost:8888"> Login to Spotify </a>
         ) : (
           <div>
-            <div>Now Playing: {this.state.nowPlaying.name}</div>
             <div>
               <img
                 alt={this.state.nowPlaying.name}
                 src={this.state.nowPlaying.albumArt}
-                style={{ height: 150 }}
+                style={{ height: 350 }}
               />
             </div>
-            <button onClick={() => this.skipTrack("previous")}><FaBackward /></button>
-            <button onClick={this.playPause}>
+            <div className="trackInfo">
+              <strong>{this.state.nowPlaying.artist}</strong>{' '}{this.state.nowPlaying.name}
+            </div>
+            <button className="controlButton" onClick={() => this.skipTrack("previous")}>
+              <FaBackward />
+              <span className="srOnly">Previous Track</span>
+            </button>
+            <button className="controlButton" onClick={this.playPause}>
               {isPlaying ? <FaPause /> : <FaPlay />}
               {isPlaying ? (
                 <span className="srOnly">Pause</span>
@@ -171,7 +175,10 @@ class App extends Component {
                 <span className="srOnly">Play</span>
               )}
             </button>
-            <button onClick={() => this.skipTrack("next")}><FaForward /></button>
+            <button className="controlButton" onClick={() => this.skipTrack("next")}>
+              <FaForward />
+              <span className="srOnly">Next Track</span>
+            </button>
             <div>
               <input
                 value={searchValue}
@@ -182,10 +189,12 @@ class App extends Component {
                 }
               />
               <button
+                className="searchButton"
                 onClick={this.searchSpotify}
                 disabled={fetchingSearchResults}
               >
-                Find Artist
+                <FaSearch />
+                <span className="srOnly">Find Artist</span>
               </button>
             </div>
             {searchResults.artists.length > 0 && (
