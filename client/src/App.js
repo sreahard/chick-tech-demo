@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import querystring from "query-string";
 import SpotifyWebApi from "spotify-web-api-js";
+import { FaPlay, FaPause, FaBackward, FaForward } from 'react-icons/lib/fa'
 import "./App.css";
 
 const spotifyApi = new SpotifyWebApi();
@@ -44,6 +45,7 @@ class App extends Component {
         this.setState({
           nowPlaying: {
             name: item.name,
+            artist: item.artists[0].name,
             albumArt: item.album.images[0].url,
           },
           isPlaying: is_playing,
@@ -62,7 +64,7 @@ class App extends Component {
     if (isPlaying) {
       spotifyApi.pause({ device_id: deviceId });
     } else {
-      spotifyApi.play({ device_id: deviceId })
+      spotifyApi.play({ device_id: deviceId });
     }
     this.setState({
       isPlaying: !isPlaying,
@@ -70,15 +72,42 @@ class App extends Component {
   }
 
   playArtist(id) {
-    const badArtists = ['3WrFJ7ztbogyGnTHbHJFl2', '6deZN1bslXzeGvOLaLMOIF', '2TI7qyDE0QfyOlnbtfDo7L', '13vQloYd6mP7V1mVwKJwS2', '33URbzNgBt1Moj2TpnMtdn']
+    const badArtists = [
+      "3WrFJ7ztbogyGnTHbHJFl2", // Beetles
+      "6deZN1bslXzeGvOLaLMOIF", // Nickelback
+      "2TI7qyDE0QfyOlnbtfDo7L", // Dave Matthews Band
+      "13vQloYd6mP7V1mVwKJwS2", // Dave Matthews
+      "33URbzNgBt1Moj2TpnMtdn", // Dave Matthews
+      "4xtWjIlVuZwTCeqVAsgEXy", // Insane Clown Posse
+    ];
+    const favoriteArtists = [
+      "0fA0VVWsXO9YnASrzqfmYu", // Khalid
+      "2YZyLoL8N0Wb9xBt1NhZWg", // Kendrick Lamar
+      "1Xyo4u8uXC1ZmMpatF05PJ", // The Weeknd
+      "56oDRnqbIiwx4mymNEv7dS", // Lizzo
+    ];
     if (badArtists.includes(id)) {
-      spotifyApi.play({ device_id: this.state.deviceId, context_uri: 'spotify:artist:0J7U24vlOOIeMpuaO6Q85A' }).then(() => {
-        setTimeout(() => this.getNowPlaying(), 500);
-      });
+      spotifyApi
+        .play({
+          device_id: this.state.deviceId,
+          context_uri: `spotify:artist:${
+            favoriteArtists[
+              Math.floor(Math.random() * favoriteArtists.length + 1)
+            ]
+          }`,
+        })
+        .then(() => {
+          setTimeout(() => this.getNowPlaying(), 500);
+        });
     } else {
-      spotifyApi.play({ device_id: this.state.deviceId, context_uri: `spotify:artist:${id}` }).then(() => {
-        setTimeout(() => this.getNowPlaying(), 500);
-      });
+      spotifyApi
+        .play({
+          device_id: this.state.deviceId,
+          context_uri: `spotify:artist:${id}`,
+        })
+        .then(() => {
+          setTimeout(() => this.getNowPlaying(), 500);
+        });
     }
   }
 
@@ -111,6 +140,14 @@ class App extends Component {
   }
 
   render() {
+    console.log(this.state.nowPlaying);
+    const {
+      isPlaying,
+      searchValue,
+      fetchingSearchResults,
+      searchResults,
+    } = this.state;
+    const icon = isPlaying ? "pause" : "play";
     return (
       <div className="App">
         {!this.state.loggedIn || this.state.loadError ? (
@@ -125,14 +162,19 @@ class App extends Component {
                 style={{ height: 150 }}
               />
             </div>
-            <button onClick={() => this.skipTrack("previous")}>Previous</button>
+            <button onClick={() => this.skipTrack("previous")}><FaBackward /></button>
             <button onClick={this.playPause}>
-              {this.state.isPlaying ? "Pause" : "Play"}
+              {isPlaying ? <FaPause /> : <FaPlay />}
+              {isPlaying ? (
+                <span className="srOnly">Pause</span>
+              ) : (
+                <span className="srOnly">Play</span>
+              )}
             </button>
-            <button onClick={() => this.skipTrack("next")}>Next</button>
+            <button onClick={() => this.skipTrack("next")}><FaForward /></button>
             <div>
               <input
-                value={this.state.searchValue}
+                value={searchValue}
                 onChange={event =>
                   this.setState({
                     searchValue: event.target.value,
@@ -141,16 +183,16 @@ class App extends Component {
               />
               <button
                 onClick={this.searchSpotify}
-                disabled={this.state.fetchingSearchResults}
+                disabled={fetchingSearchResults}
               >
                 Find Artist
               </button>
             </div>
-            {this.state.searchResults.artists.length > 0 && (
+            {searchResults.artists.length > 0 && (
               <div>
-                <h2>Resluts</h2>
+                <h2>Results</h2>
                 <h3> Artists </h3>
-                {this.state.searchResults.artists.map(artist => (
+                {searchResults.artists.map(artist => (
                   <div key={artist.id}>
                     <img
                       src={
@@ -163,7 +205,9 @@ class App extends Component {
                       height="75"
                     />
                     {artist.id}
-                    <button onClick={() => this.playArtist(artist.id)}>Play {artist.name}</button>
+                    <button onClick={() => this.playArtist(artist.id)}>
+                      Play {artist.name}
+                    </button>
                   </div>
                 ))}
               </div>

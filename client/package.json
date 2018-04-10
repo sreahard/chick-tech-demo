@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "q": "^1.5.1",
     "query-string": "^6.0.0",
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
+    "react-icons": "^2.2.7",
     "react-scripts": "1.1.4",
     "spotify-web-api-js": "^0.23.0"
   },
