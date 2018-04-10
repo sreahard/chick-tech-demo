@@ -22,11 +22,12 @@ class App extends Component {
       searchValue: "",
       searchResults: { albums: [], artists: [], playlists: [], tracks: [] },
       fetchingSearchResults: false,
-      loadError: false
+      loadError: false,
     };
     this.getNowPlaying = this.getNowPlaying.bind(this);
     this.skipTrack = this.skipTrack.bind(this);
     this.playPause = this.playPause.bind(this);
+    this.playArtist = this.playArtist.bind(this);
     this.searchSpotify = this.searchSpotify.bind(this);
   }
 
@@ -43,14 +44,14 @@ class App extends Component {
         this.setState({
           nowPlaying: {
             name: item.name,
-            albumArt: item.album.images[0].url
+            albumArt: item.album.images[0].url,
           },
           isPlaying: is_playing,
-          deviceId: device.id
+          deviceId: device.id,
         });
       } else {
         this.setState({
-          loadError: true
+          loadError: true,
         });
       }
     });
@@ -61,24 +62,37 @@ class App extends Component {
     if (isPlaying) {
       spotifyApi.pause({ device_id: deviceId });
     } else {
-      spotifyApi.play({ device_id: deviceId });
+      spotifyApi.play({ device_id: deviceId })
     }
     this.setState({
-      isPlaying: !isPlaying
+      isPlaying: !isPlaying,
     });
+  }
+
+  playArtist(id) {
+    const badArtists = ['3WrFJ7ztbogyGnTHbHJFl2', '6deZN1bslXzeGvOLaLMOIF', '2TI7qyDE0QfyOlnbtfDo7L', '13vQloYd6mP7V1mVwKJwS2', '33URbzNgBt1Moj2TpnMtdn']
+    if (badArtists.includes(id)) {
+      spotifyApi.play({ device_id: this.state.deviceId, context_uri: 'spotify:artist:0J7U24vlOOIeMpuaO6Q85A' }).then(() => {
+        setTimeout(() => this.getNowPlaying(), 500);
+      });
+    } else {
+      spotifyApi.play({ device_id: this.state.deviceId, context_uri: `spotify:artist:${id}` }).then(() => {
+        setTimeout(() => this.getNowPlaying(), 500);
+      });
+    }
   }
 
   searchSpotify(event) {
     event.preventDefault();
     this.setState({
-      fetchingSearchResults: true
+      fetchingSearchResults: true,
     });
     spotifyApi.search(this.state.searchValue, ["artist"]).then(response => {
       this.setState({
         searchResults: {
-          artists: response.artists.items
+          artists: response.artists.items,
         },
-        fetchingSearchResults: false
+        fetchingSearchResults: false,
       });
     });
   }
@@ -97,7 +111,6 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.state.searchResults.artists);
     return (
       <div className="App">
         {!this.state.loggedIn || this.state.loadError ? (
@@ -122,7 +135,7 @@ class App extends Component {
                 value={this.state.searchValue}
                 onChange={event =>
                   this.setState({
-                    searchValue: event.target.value
+                    searchValue: event.target.value,
                   })
                 }
               />
@@ -130,21 +143,31 @@ class App extends Component {
                 onClick={this.searchSpotify}
                 disabled={this.state.fetchingSearchResults}
               >
-                Search
+                Find Artist
               </button>
             </div>
-            <div>
-              <h2>Resluts</h2>
-              <h3> Artists </h3>
-              {this.state.searchResults.artists.map(artist => (
-                <div key={artist.id}>
-                  {artist.images.length > 0 && (
-                    <img src={artist.images[0].url} alt={artist.name} width='75' height='75' />
-                  )}
-                  {artist.name}
-                </div>
-              ))}
-            </div>
+            {this.state.searchResults.artists.length > 0 && (
+              <div>
+                <h2>Resluts</h2>
+                <h3> Artists </h3>
+                {this.state.searchResults.artists.map(artist => (
+                  <div key={artist.id}>
+                    <img
+                      src={
+                        artist.images.length > 0
+                          ? artist.images[0].url
+                          : "http://via.placeholder.com/75x75"
+                      }
+                      alt={artist.name}
+                      width="75"
+                      height="75"
+                    />
+                    {artist.id}
+                    <button onClick={() => this.playArtist(artist.id)}>Play {artist.name}</button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

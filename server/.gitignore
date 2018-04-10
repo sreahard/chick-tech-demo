@@ -1,2 +1,4 @@
 node_modules/
 authorization_code/.env
+
+.DS_Store
