@@ -8,8 +8,8 @@ const spotifyApi = new SpotifyWebApi();
 class App extends Component {
   constructor(props) {
     super(props);
-    const params = querystring.parse(window.location.hash);
-    const token = params.access_token;
+    this.params = querystring.parse(window.location.hash);
+    const token = this.params.access_token;
     if (token) {
       spotifyApi.setAccessToken(token);
     }
@@ -22,6 +22,7 @@ class App extends Component {
       searchValue: "",
       searchResults: { albums: [], artists: [], playlists: [], tracks: [] },
       fetchingSearchResults: false,
+      loadError: false
     };
     this.getNowPlaying = this.getNowPlaying.bind(this);
     this.skipTrack = this.skipTrack.bind(this);
@@ -47,6 +48,10 @@ class App extends Component {
           isPlaying: is_playing,
           deviceId: device.id
         });
+      } else {
+        this.setState({
+          loadError: true
+        });
       }
     });
   }
@@ -66,21 +71,16 @@ class App extends Component {
   searchSpotify(event) {
     event.preventDefault();
     this.setState({
-      fetchingSearchResults: true,
-    })
-    spotifyApi
-      .search(this.state.searchValue, ["album", "artist", "playlist", "track"])
-      .then(response => {
-        this.setState({
-          searchResults: {
-            albums: response.albums.items,
-            artists: response.artists.items,
-            playlists: response.playlists.items,
-            tracks: response.tracks.items
-          },
-          fetchingSearchResults: false,
-        });
+      fetchingSearchResults: true
+    });
+    spotifyApi.search(this.state.searchValue, ["artist"]).then(response => {
+      this.setState({
+        searchResults: {
+          artists: response.artists.items
+        },
+        fetchingSearchResults: false
       });
+    });
   }
 
   skipTrack(direction) {
@@ -97,42 +97,56 @@ class App extends Component {
   }
 
   render() {
+    console.log(this.state.searchResults.artists);
     return (
       <div className="App">
-        {!this.state.loggedIn && (
+        {!this.state.loggedIn || this.state.loadError ? (
           <a href="http://localhost:8888"> Login to Spotify </a>
+        ) : (
+          <div>
+            <div>Now Playing: {this.state.nowPlaying.name}</div>
+            <div>
+              <img
+                alt={this.state.nowPlaying.name}
+                src={this.state.nowPlaying.albumArt}
+                style={{ height: 150 }}
+              />
+            </div>
+            <button onClick={() => this.skipTrack("previous")}>Previous</button>
+            <button onClick={this.playPause}>
+              {this.state.isPlaying ? "Pause" : "Play"}
+            </button>
+            <button onClick={() => this.skipTrack("next")}>Next</button>
+            <div>
+              <input
+                value={this.state.searchValue}
+                onChange={event =>
+                  this.setState({
+                    searchValue: event.target.value
+                  })
+                }
+              />
+              <button
+                onClick={this.searchSpotify}
+                disabled={this.state.fetchingSearchResults}
+              >
+                Search
+              </button>
+            </div>
+            <div>
+              <h2>Resluts</h2>
+              <h3> Artists </h3>
+              {this.state.searchResults.artists.map(artist => (
+                <div key={artist.id}>
+                  {artist.images.length > 0 && (
+                    <img src={artist.images[0].url} alt={artist.name} width='120' height='120' />
+                  )}
+                  {artist.name}
+                </div>
+              ))}
+            </div>
+          </div>
         )}
-        <div>Now Playing: {this.state.nowPlaying.name}</div>
-        <div>
-          <img
-            alt={this.state.nowPlaying.name}
-            src={this.state.nowPlaying.albumArt}
-            style={{ height: 150 }}
-          />
-        </div>
-        <button onClick={() => this.skipTrack("previous")}>Previous</button>
-        <button onClick={this.playPause}>
-          {this.state.isPlaying ? "Pause" : "Play"}
-        </button>
-        <button onClick={() => this.skipTrack("next")}>Next</button>
-        <div>
-          <input
-            value={this.state.searchValue}
-            onChange={event =>
-              this.setState({
-                searchValue: event.target.value
-              })
-            }
-          />
-          <button onClick={this.searchSpotify} disabled={this.state.fetchingSearchResults}>Search</button>
-        </div>
-        <div>
-          <h2>Resluts</h2>
-          <h3> Artists </h3>
-          {this.state.searchResults.artists.map(artist => <p>{artist.name}</p>)}
-          <h3> Albums </h3>
-          {this.state.searchResults.albums.map(album => <p>{album.name}</p>)}
-        </div>
       </div>
     );
   }
