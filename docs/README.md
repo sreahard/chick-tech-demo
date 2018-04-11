@@ -11,7 +11,7 @@ Note: It will be easier if you use your browser in incognito, or make sure that 
 
 Before we do anything, let’s step back and get an overview of the process we’ll be going through. Spotify’s API has great documentation, and in there they describe the 3 types of authorization flows you can go through to use their API. The one we’ll be using today is the authorization code flow. Here is a more detailed rundown of the types of authorization Spotify offers. https://beta.developer.spotify.com/documentation/general/guides/authorization-guide/
 
-If you’ve ever used and app that asked you to log in with Facebook, Google etc., then you’ve used Oauth. It basically allows your app to get authorised by Spotify and return to your app’s redirect URI with an access code, which will allow your app to access that users’ Spotify information.
+If you’ve ever used and app that asked you to log in with Facebook, Google etc., then you’ve used Oauth. It basically allows your app to get authorized by Spotify and return to your app’s redirect URI with an access code, which will allow your app to access that users’ Spotify information.
 
 You will then go to Spotify and exchange that authorization code for an access_token, which be used to make API calls.
 
@@ -23,7 +23,7 @@ https://beta.developer.spotify.com/dashboard/applications
 
 On the following screen is where we’ll find your new app’s details.
 
-Add a redirect URI. This is the link that Spotify will need in order to safely send the user back to your app after they’ve been authorised. Type in http://localhost:8888/callback. Click the ‘save changes’ button at the bottom.
+Add a redirect URI. This is the link that Spotify will need in order to safely send the user back to your app after they’ve been authorized. Type in http://localhost:8888/callback. Click the ‘save changes’ button at the bottom.
 
 Copy down the Client ID, the Client Secret, and your redirect URI. You’ll need these into your server code for it to work.
 
@@ -34,7 +34,7 @@ We’ll use and modify an example provided by Spotify. You can download it here:
 
 Once you have the .zip file downloaded to your `chick-tech-spotify-demo` folder, extract it and rename the folder `server`
 
-You’ll notice it’s separated into three directories, one for each authorisation flow. Since we’ll be using authorisation_code, navigate to that one and open app.js in your favourite code editor. Right below the imports, there are three variables we need to set, client_id, client_secret, and redirect_uri. Paste the text that you copied earlier.
+You’ll notice it’s separated into three directories, one for each authorization flow. Since we’ll be using authorization_code, navigate to that one and open app.js in your favourite code editor. Right below the imports, there are three variables we need to set, client_id, client_secret, and redirect_uri. Paste the text that you copied earlier.
 ```
 /* auth-server/authorization_code/app.js */
 var client_id = ‘CLIENT_ID’; // Your client id
@@ -53,10 +53,10 @@ If you want to understand in more detail what’s going on, run the process, aga
 
 In the example we just used, the access token is passed into the query string so that the front-end can access it. We’re going to use the same method use the token in our React app and make API requests there.
 
-Go back to the project’s root, then use create-react-app to make a new application in a separate directory. Then, run ‘npm start’ and visit localhost:3000 to check that the app is working. Make sure that your other server is still running and listening on port 8888, as we’ll need it too.
+Go back to the project’s root in your terminal, then use create-react-app to make a new application in a separate directory follow the steps bellow to get the app up and running.
 ```
 cd ..
-create-react-app client
+npx create-react-app client
 cd client
 npm install
 npm start
@@ -81,9 +81,9 @@ div, button {
 ```
 Check to make sure clicking this button takes you to the login page we used before, but don’t actually log in just yet.
 
-When authorised, we need to be sent back to our client app, so we need make a couple changes in the server’s app.js file.
+When authorized, we need to be sent back to our client app, so we need make a couple changes in the server’s app.js file.
 
-In auth-server/authorisation_code/app.js, find the first ‘res.redirect(‘/#’’ near the bottom of the file and change ‘/#’ to ‘http://localhost:3000/#'.
+In auth-server/authorization_code/app.js, find the first ‘res.redirect(‘/#’’ near the bottom of the file (line 105) and change ‘/#’ to ‘http://localhost:3000/#'.
 ```
 /* auth-server/authorization_code/app.js */
 res.redirect(‘http://localhost:3000/#' +
@@ -95,7 +95,7 @@ res.redirect(‘http://localhost:3000/#' +
 There’s one last thing we need to change in the server code. There’s a variable called scope which has a string of words like ‘user-read-email’. These represent each of the actions that your app is requesting to be allowed to do with your Spotify account. You can read all about Spotify’s scopes here. The one we need, ‘user-read-playback-state’, is not in there so let’s add it in.
 ```
 /* auth-server/authorization_code/app.js */
-var scope = ‘user-read-private user-read-email user-read-playback-state’;
+var scope = ['user-read-private, user-read-email, streaming, user-read-currently-playing, user-modify-playback-state, user-read-playback-state'];
 ```
 Make sure to restart the server to make sure your changes go into effect.
 
@@ -103,34 +103,34 @@ Let’s see if it all works, click the login button on your react app. It should
 
 
 ## 4)  Open your Spotify App or the Spotify Web App and play a song
+
 Great, now lets mute those players so we don't all go crazy while working on this.
 
 
 ## 5) Make your first API Call
 
-We’re almost there. Now we just need to pull the token from the query sting into our react app and we can use it. There are many ways to do this, but I’m lazy so I copied the function getHashParams from the example code that we cloned (found in auth-server/authorization_code/public/index.html), and made a slight change just to silence create-react-app’s picky linter. The function returns an object with the parameters as properties.
+We’re almost there. Now we just need to pull the token from the query sting into our react app and we can use it. For this we are going to use the query-string package from npm so let's install it.
 
-Create a constructor, and in it save the return value of this function into a variable called params. You can throw in a console log for now to make sure it’s working.
+From the terminal, make sure you are in the folder `chick-tech-spotify-demo/client` to install the package use the command `npm install --save query-string`
+
+Now we will have access to the query string tools it provides so we can get the accesstoken from the url. 
+
+In order to use packages in React you need to import them at the top of your doccument, so in App.js let's add this line on the 2nd line of the file.
+
+`import querystring from "query-string";`
+
+
+Create a constructor which will help bind all of the actions we will be creating to our application, and in it let's get the token from the query string. For now let's just log the results so we can make sure it is working the way we want.
 
 ```
 /* client/src/App.js */
 class App extends Component {
   constructor(){
     super();
-    const params = this.getHashParams();
+    const params = querystring.parse(window.location.hash);
     console.log(params);
   }
-  getHashParams() {
-    var hashParams = {};
-    var e, r = /([^&;=]+)=?([^&;]*)/g,
-        q = window.location.hash.substring(1);
-    e = r.exec(q)
-    while (e) {
-       hashParams[e[1]] = decodeURIComponent(e[2]);
-       e = r.exec(q);
-    }
-    return hashParams;
-  }
+  
   render() {
     return (
       <div className="App">
@@ -142,17 +142,19 @@ class App extends Component {
 ```
 Now that we have access to the token, it’s finally time to use the API. Instead of manually coding our API requests, we’re going to use a library, which was created by José M. Pérez, a Spotify engineer, that abstracts pretty much every API call we could need.
 
-Let’s Install it in the client directory
+Let’s Install it in the client directory just like we did with query-string
 
-npm install --save spotify-web-api-js
+`npm install --save spotify-web-api-js`
+
 The library is a class, so import it to your App.js file and instantiate it as a new variable called spotifyApi
-
+```
 /* client/src/App.js */
 import SpotifyWebApi from ‘spotify-web-api-js’;
 const spotifyApi = new SpotifyWebApi();
-The library’s repository has a README that highlights basic use of the library, but even though there doesn’t seem to be further documentation (the link to it is broken), the source file itself is very well organised and commented, so you can easily find the methods you need, as well as how to call them.
+```
+The library’s repository has a README that highlights basic use of the library and good documentaion on how to use it. https://doxdox.org/jmperez/spotify-web-api-js
 
-The first thing we need to do is store our access token into the object. Let’s do that in the constructor, adding an if-statement to make sure that we only do so if there is an access token in the query string, and not when we first open the app. While we’re in the constructor, let’s prepare for the data we’ll receive by setting state with the key nowPlaying set to ’Not Checked’ for now. In this initial state object, we can add property to our state object called loggedIn, which will help us conditionally render jsx.
+The first thing we need to do is store our access token into the object. Let’s do that in the constructor, adding an if-statement to make sure that we only do so if there is an access token in the query string, and not when we first open the app. While we’re in the constructor, let’s prepare for the data we’ll receive by setting state with the key nowPlaying set to 'Not Checked' for now. In this initial state object, we can add property to our state object called loggedIn, which will help us conditionally render jsx.
 ```
 /* client/src/App.js */
 constructor(){
@@ -186,35 +188,39 @@ render() {
 }
 ```
 
-It’s finally time to make our API call. Write a function called getNowPlaying inside of the App Class to make the API request. This function will use the one of the many spotifyApi methods to make a request and creates a promise. We then use the response data to set state. The code below is already structured access the right data in the response, but I highly suggest you experiment by looking at the entire response object, either by logging it to the console or by checking the network tab in your dev tools, so that you can be more familiar with it, because there is a lot of other potentially useful data in there.
+It’s finally time to make our API call. Write a function called getNowPlaying inside of the App Class to make the API request. This function will use the one of the many spotifyApi methods to make a request and creates a promise. We then use the response data to set state. We also want to add a catch if for some reason the API throws an error, we want to set the loggedIn state to false so we can relogin and try again. The code below is already structured access the right data in the response, but let's experiment by looking at the entire response object, by logging it to the console so we can see what we are working with. This data structure is also documented in the Spotify docs, but I find this way to be a much simpler way to see what data we have to work with.
 ```
 /* client/src/App.js */
 getNowPlaying(){
   spotifyApi.getMyCurrentPlaybackState()
-    .then((response) => {
+    .then(response => {
+      console.log(response)
       this.setState({
         nowPlaying: { 
             name: response.item.name, 
             albumArt: response.item.album.images[0].url
           }
       });
-    })
+    }).catch(e => this.setState({
+          loggedIn: false,
+      }));
 }
 ```
-The last thing you’ll need to do is set up some divs to show our data, and a button to trigger geNowplaying. The binary operator is to make sure it only gets rendered if you’re logged in.
+The last thing you’ll need to do is set up some divs to show our data, and a button to trigger geNowplaying. The binary operator is to make sure it only gets rendered if you’re logged in. And to only show the login link if you are logged out. I like to destructure my objects at the top of my functions, I think it makes the code easier to read and I don't have to type as much :)
 ```
 /* client/src/App.js */
 render() {
+  const { loggedIn, nowPlaying } = this.state
   return (
     <div className="App">
-      <a href='http://localhost:8888' > Login to Spotify </a>
+      {!loggedIn && <a href='http://localhost:8888' > Login to Spotify </a>}
       <div>
-        Now Playing: { this.state.nowPlaying.name }
+        Now Playing: {nowPlaying.name}
       </div>
       <div>
-        <img src={this.state.nowPlaying.albumArt} style={{ height: 150 }}/>
+        <img src={nowPlaying.albumArt} style={{ height: 150 }}/>
       </div>
-      { this.state.loggedIn &&
+      {loggedIn &&
         <button onClick={() => this.getNowPlaying()}>
           Check Now Playing
         </button>
@@ -226,4 +232,6 @@ render() {
 All done! All that’s left to do is try it out. Click the button and your currently playing song’s name and album art should appear.
 
 
-Next Steps
+## Next Steps: 
+
+Using spotify-web-api-js we will implement the ability to play and pause music, skip tracks and search for artists. Once everything is working we can make it look good! Strech goal, add the ability to not play artists you don't like.
