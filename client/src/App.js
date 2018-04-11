@@ -15,8 +15,8 @@ import "./App.css";
 const spotifyApi = new SpotifyWebApi();
 
 class App extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.params = querystring.parse(window.location.hash);
     const token = this.params.access_token;
     if (token) {
@@ -31,7 +31,6 @@ class App extends Component {
       searchValue: "",
       searchResults: { albums: [], artists: [], playlists: [], tracks: [] },
       fetchingSearchResults: false,
-      loadError: false,
     };
     this.getNowPlaying = this.getNowPlaying.bind(this);
     this.skipTrack = this.skipTrack.bind(this);
@@ -64,15 +63,15 @@ class App extends Component {
           });
         } else {
           this.setState({
-            loadError: true,
+            loggedIn: false,
           });
         }
       })
-      .catch(e => {
+      .catch(e =>
         this.setState({
-          loadError: true,
-        });
-      });
+          loggedIn: false,
+        })
+      );
   }
 
   playPause() {
@@ -80,13 +79,13 @@ class App extends Component {
     if (isPlaying) {
       spotifyApi.pause({ device_id: deviceId }).catch(e => {
         this.setState({
-          loadError: true,
+          loggedIn: false,
         });
       });
     } else {
       spotifyApi.play({ device_id: deviceId }).catch(e => {
         this.setState({
-          loadError: true,
+          loggedIn: false,
         });
       });
     }
@@ -125,7 +124,7 @@ class App extends Component {
         })
         .catch(e => {
           this.setState({
-            loadError: true,
+            loggedIn: false,
           });
         });
     } else {
@@ -139,7 +138,7 @@ class App extends Component {
         })
         .catch(e => {
           this.setState({
-            loadError: true,
+            loggedIn: false,
           });
         });
     }
@@ -162,7 +161,7 @@ class App extends Component {
       })
       .catch(e => {
         this.setState({
-          loadError: true,
+          loggedIn: false,
         });
       });
   }
@@ -177,7 +176,7 @@ class App extends Component {
         })
         .catch(e => {
           this.setState({
-            loadError: true,
+            loggedIn: false,
           });
         });
     } else {
@@ -188,7 +187,7 @@ class App extends Component {
         })
         .catch(e => {
           this.setState({
-            loadError: true,
+            loggedIn: false,
           });
         });
     }
@@ -200,11 +199,13 @@ class App extends Component {
       searchValue,
       fetchingSearchResults,
       searchResults,
+      loggedIn,
+      nowPlaying,
     } = this.state;
     const icon = isPlaying ? "pause" : "play";
     return (
       <div className="App">
-        {!this.state.loggedIn || this.state.loadError ? (
+        {!loggedIn ? (
           <a href="http://localhost:8888" className="loginButton">
             Login to Spotify
           </a>
@@ -212,14 +213,13 @@ class App extends Component {
           <div>
             <div>
               <img
-                alt={this.state.nowPlaying.name}
-                src={this.state.nowPlaying.albumArt}
+                alt={nowPlaying.name}
+                src={nowPlaying.albumArt}
                 style={{ height: 350 }}
               />
             </div>
             <div className="trackInfo">
-              <strong>{this.state.nowPlaying.artist}</strong>{" "}
-              {this.state.nowPlaying.name}
+              <strong>{nowPlaying.artist}</strong> {nowPlaying.name}
             </div>
             <button
               className="controlButton"
