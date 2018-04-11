@@ -1,49 +1,46 @@
 ## Preface — Understand The Process
-First things first, here’s what I’m assuming
-You have installed: npm, create-react-app
-You understand the basics of: Git, Node, Express, REST APIs, Promises, React
-You have a Spotify Account
+
+Before we gert started let's make sure everyone's environment is setup properly. 
+
+In your terminal check and see if you already have node installed by typing `node -v`
+If your computer returns a version number you are all set, if not you can download the install package here: https://nodejs.org/en/download/
+
+You will also need a Spotify Account, a free account will work.
+
 Note: It will be easier if you use your browser in incognito, or make sure that your login sessions aren’t stored, as you’ll likely need to login several times as we build up this app, and you don’t want to have to manually log out each time.
 
-Before we do anything, let’s step back and get an overview of the process we’ll be going through. Spotify’s API has great documentation, and in there. they describe the 3 types of authorisation flows you can go through to use their API. The one we’ll be using today is the authorisation code flow, that uses Oauth 2.0. Here’s the diagram they provide.
-
+Before we do anything, let’s step back and get an overview of the process we’ll be going through. Spotify’s API has great documentation, and in there they describe the 3 types of authorization flows you can go through to use their API. The one we’ll be using today is the authorization code flow. Here is a more detailed rundown of the types of authorization Spotify offers. https://beta.developer.spotify.com/documentation/general/guides/authorization-guide/
 
 If you’ve ever used and app that asked you to log in with Facebook, Google etc., then you’ve used Oauth. It basically allows your app to get authorised by Spotify and return to your app’s redirect URI with an access code, which will allow your app to access that users’ Spotify information.
 
-Your will then go to Spotify and exchange that authorisation code for an access_token, which be used to make API calls.
+You will then go to Spotify and exchange that authorization code for an access_token, which be used to make API calls.
 
 Note: The token will expire after 60 minutes. The response object in which you initially get the token also contains a refresh token. You can use it to request a new access token. We won’t be doing that here, but the repo we will clone has an example that you can use and modify, and perhaps even set up to run automatically when your token nears expiration. This tutorial should take you well under an hour, but just in case, simply logging in again should be enough to get a new token.
 
-## 1)  Open your Spotify App and play a song
-You already did that, so you’re ahead of the game.
-
-
-## 2) Register your App
+## 1) Register your App
 Visit Spotify’s Developer Site, go to ‘My Apps’, click ‘create an app’. Name and describe the app whatever you want.
-
+https://beta.developer.spotify.com/dashboard/applications
 
 On the following screen is where we’ll find your new app’s details.
 
-
 Add a redirect URI. This is the link that Spotify will need in order to safely send the user back to your app after they’ve been authorised. Type in http://localhost:8888/callback. Click the ‘save changes’ button at the bottom.
 
-Copy down the Client ID, the Client Secret, and your redirect URI. You’ll need these into your server code for it to work. The ones in the screenshot below won’t work for you, as I re-generated them after writing this tutorial.
+Copy down the Client ID, the Client Secret, and your redirect URI. You’ll need these into your server code for it to work.
 
-## 3) Set up the Server
-Create a folder called spotify-api-intro and navigate to it.
+## 2) Set up the Server
+Create a folder called `chick-tech-spotify-demo` and navigate to it.
 
-We’ll use and modify an example provided by Spotify. While you’re on Spotify’s Developer Site, click on Web-api -> Code Examples and Libraries -> Example App Code, you should find this repository. Clone it and install the dependencies
+We’ll use and modify an example provided by Spotify. You can download it here: https://github.com/spotify/web-api-auth-examples
 
-git clone https://github.com/spotify/web-api-auth-examples.git auth-server
-cd auth-server
-npm install
+Once you have the .zip file downloaded to your `chick-tech-spotify-demo` folder, extract it and rename the folder `server`
+
 You’ll notice it’s separated into three directories, one for each authorisation flow. Since we’ll be using authorisation_code, navigate to that one and open app.js in your favourite code editor. Right below the imports, there are three variables we need to set, client_id, client_secret, and redirect_uri. Paste the text that you copied earlier.
 ```
 /* auth-server/authorization_code/app.js */
 var client_id = ‘CLIENT_ID’; // Your client id
 var client_secret = ‘CLIENT_SECRET’; // Your secret
 var redirect_uri = ‘REDIRECT_URI’; // Your redirect uri
-Start it up by running `node authorization_code/app.js`. Open up your browser and you should see a log in button.
+Start it up by running `nodemon authorization_code/app.js`. Open up your browser and you should see a log in button.
 ```
 
 When you click it, it should take you to Spotify’s Login page. Once you’re logged in, it will send you back to your redirect URI. You should then see your Spotify account information, as well as your access token and refresh token.
@@ -52,7 +49,7 @@ When you click it, it should take you to Spotify’s Login page. Once you’re l
 If you want to understand in more detail what’s going on, run the process, again, this time paying close attention to the address bar. Notice the variables being passed into the query string at each step. Then, look through the example server code (app.js) and compare it to the authorization flow diagram, identifying which parts of the code correspond to which parts of the authorization flow. Don’t worry about ‘scope’ yet, we’ll talk about that one in the next step.
 
 
-## 4) Set up the Client
+## 3) Set up the Client
 
 In the example we just used, the access token is passed into the query string so that the front-end can access it. We’re going to use the same method use the token in our React app and make API requests there.
 
@@ -103,6 +100,10 @@ var scope = ‘user-read-private user-read-email user-read-playback-state’;
 Make sure to restart the server to make sure your changes go into effect.
 
 Let’s see if it all works, click the login button on your react app. It should take you to the Spotify Login page, and when you’ve logged in, you should be redirected back to your react app, and the access_token should be in the in the query string, along with other data.
+
+
+## 4)  Open your Spotify App or the Spotify Web App and play a song
+Great, now lets mute those players so we don't all go crazy while working on this.
 
 
 ## 5) Make your first API Call
