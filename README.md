@@ -1,4 +1,4 @@
-# spotify-api-intro
+# chick-tech-missoula-spotify-demo-app
 This Repo is the result of a Chick Tech tutorial that teaches how to use Spotify's API with react.
 It's a stylish app that allows users to control what is playing on their spotify player, search for
 artists and swap out artists they don't like for ones they do.
