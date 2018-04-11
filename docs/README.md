@@ -3,13 +3,14 @@
 Before we gert started let's make sure everyone's environment is setup properly. 
 
 In your terminal check and see if you already have node installed by typing `node -v`
-If your computer returns a version number you are all set, if not you can download the install package here: https://nodejs.org/en/download/
+If your computer returns a version number you are all set, if not you can download the install package here: [https://nodejs.org/en/download/](https://nodejs.org/en/download/)
 
 You will also need a Spotify Account, a free account will work.
 
 Note: It will be easier if you use your browser in incognito, or make sure that your login sessions aren’t stored, as you’ll likely need to login several times as we build up this app, and you don’t want to have to manually log out each time.
 
-Before we do anything, let’s step back and get an overview of the process we’ll be going through. Spotify’s API has great documentation, and in there they describe the 3 types of authorization flows you can go through to use their API. The one we’ll be using today is the authorization code flow. Here is a more detailed rundown of the types of authorization Spotify offers. https://beta.developer.spotify.com/documentation/general/guides/authorization-guide/
+Before we do anything, let’s step back and get an overview of the process we’ll be going through. Spotify’s API has great documentation, and in there they describe the 3 types of authorization flows you can go through to use their API. The one we’ll be using today is the authorization code flow. Here is a more detailed rundown of the types of authorization Spotify offers. 
+[https://beta.developer.spotify.com/documentation/general/guides/authorization-guide/](https://beta.developer.spotify.com/documentation/general/guides/authorization-guide/)
 
 If you’ve ever used and app that asked you to log in with Facebook, Google etc., then you’ve used Oauth. It basically allows your app to get authorized by Spotify and return to your app’s redirect URI with an access code, which will allow your app to access that users’ Spotify information.
 
@@ -19,7 +20,7 @@ Note: The token will expire after 60 minutes. The response object in which you i
 
 ## 1) Register your App
 Visit Spotify’s Developer Site, go to ‘My Apps’, click ‘create an app’. Name and describe the app whatever you want.
-https://beta.developer.spotify.com/dashboard/applications
+[https://beta.developer.spotify.com/dashboard/applications](https://beta.developer.spotify.com/dashboard/applications)
 
 On the following screen is where we’ll find your new app’s details.
 
@@ -30,7 +31,7 @@ Copy down the Client ID, the Client Secret, and your redirect URI. You’ll need
 ## 2) Set up the Server
 Create a folder called `chick-tech-spotify-demo` and navigate to it.
 
-We’ll use and modify an example provided by Spotify. You can download it here: https://github.com/spotify/web-api-auth-examples
+We’ll use and modify an example provided by Spotify. You can download it here: [https://github.com/spotify/web-api-auth-examples](https://github.com/spotify/web-api-auth-examples)
 
 Once you have the .zip file downloaded to your `chick-tech-spotify-demo` folder, extract it and rename the folder `server`
 
@@ -61,7 +62,7 @@ cd client
 npm install
 npm start
 ```
-Remove the content in the client/src/App.js component. Replace with a link to ‘http://localhost:8888’.
+Remove the content in the client/src/App.js component. Replace with a link to 'http://localhost:8888’.
 ```
 /* client/src/App.js */
 render() {
@@ -152,7 +153,7 @@ The library is a class, so import it to your App.js file and instantiate it as a
 import SpotifyWebApi from ‘spotify-web-api-js’;
 const spotifyApi = new SpotifyWebApi();
 ```
-The library’s repository has a README that highlights basic use of the library and good documentaion on how to use it. https://doxdox.org/jmperez/spotify-web-api-js
+The library’s repository has a README that highlights basic use of the library and good documentaion on how to use it. [https://doxdox.org/jmperez/spotify-web-api-js](https://doxdox.org/jmperez/spotify-web-api-js)
 
 The first thing we need to do is store our access token into the object. Let’s do that in the constructor, adding an if-statement to make sure that we only do so if there is an access token in the query string, and not when we first open the app. While we’re in the constructor, let’s prepare for the data we’ll receive by setting state with the key nowPlaying set to 'Not Checked' for now. In this initial state object, we can add property to our state object called loggedIn, which will help us conditionally render jsx.
 ```
