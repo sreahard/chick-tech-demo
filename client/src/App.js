@@ -1,7 +1,15 @@
 import React, { Component } from "react";
 import querystring from "query-string";
 import SpotifyWebApi from "spotify-web-api-js";
-import { FaPlay, FaPause, FaBackward, FaForward, FaSearch } from 'react-icons/lib/fa'
+import {
+  FaPlay,
+  FaPause,
+  FaBackward,
+  FaForward,
+  FaSearch,
+  FaCircle,
+} from "react-icons/lib/fa";
+import logo from "./logo.svg";
 import "./App.css";
 
 const spotifyApi = new SpotifyWebApi();
@@ -39,32 +47,48 @@ class App extends Component {
   }
 
   getNowPlaying() {
-    spotifyApi.getMyCurrentPlaybackState().then((response, error) => {
-      if (response && !error) {
-        const { item, device, is_playing } = response;
-        this.setState({
-          nowPlaying: {
-            name: item.name,
-            artist: item.artists[0].name,
-            albumArt: item.album.images[0].url,
-          },
-          isPlaying: is_playing,
-          deviceId: device.id,
-        });
-      } else {
+    spotifyApi
+      .getMyCurrentPlaybackState()
+      .then(response => {
+        console.log(response.error);
+        if (response) {
+          const { item, device, is_playing } = response;
+          this.setState({
+            nowPlaying: {
+              name: item.name,
+              artist: item.artists[0].name,
+              albumArt: item.album.images[0].url,
+            },
+            isPlaying: is_playing,
+            deviceId: device.id,
+          });
+        } else {
+          this.setState({
+            loadError: true,
+          });
+        }
+      })
+      .catch(e => {
         this.setState({
           loadError: true,
         });
-      }
-    });
+      });
   }
 
   playPause() {
     const { isPlaying, deviceId } = this.state;
     if (isPlaying) {
-      spotifyApi.pause({ device_id: deviceId });
+      spotifyApi.pause({ device_id: deviceId }).catch(e => {
+        this.setState({
+          loadError: true,
+        });
+      });
     } else {
-      spotifyApi.play({ device_id: deviceId });
+      spotifyApi.play({ device_id: deviceId }).catch(e => {
+        this.setState({
+          loadError: true,
+        });
+      });
     }
     this.setState({
       isPlaying: !isPlaying,
@@ -98,6 +122,11 @@ class App extends Component {
         })
         .then(() => {
           setTimeout(() => this.getNowPlaying(), 500);
+        })
+        .catch(e => {
+          this.setState({
+            loadError: true,
+          });
         });
     } else {
       spotifyApi
@@ -107,6 +136,11 @@ class App extends Component {
         })
         .then(() => {
           setTimeout(() => this.getNowPlaying(), 500);
+        })
+        .catch(e => {
+          this.setState({
+            loadError: true,
+          });
         });
     }
   }
@@ -116,26 +150,47 @@ class App extends Component {
     this.setState({
       fetchingSearchResults: true,
     });
-    spotifyApi.search(this.state.searchValue, ["artist"]).then(response => {
-      this.setState({
-        searchResults: {
-          artists: response.artists.items,
-        },
-        fetchingSearchResults: false,
+    spotifyApi
+      .search(this.state.searchValue, ["artist"])
+      .then(response => {
+        this.setState({
+          searchResults: {
+            artists: response.artists.items,
+          },
+          fetchingSearchResults: false,
+        });
+      })
+      .catch(e => {
+        this.setState({
+          loadError: true,
+        });
       });
-    });
   }
 
   skipTrack(direction) {
     const { deviceId } = this.state;
     if (direction === "next") {
-      spotifyApi.skipToNext({ device_id: deviceId }).then(() => {
-        setTimeout(() => this.getNowPlaying(), 500);
-      });
+      spotifyApi
+        .skipToNext({ device_id: deviceId })
+        .then(() => {
+          setTimeout(() => this.getNowPlaying(), 500);
+        })
+        .catch(e => {
+          this.setState({
+            loadError: true,
+          });
+        });
     } else {
-      spotifyApi.skipToPrevious({ device_id: deviceId }).then(() => {
-        setTimeout(() => this.getNowPlaying(), 500);
-      });
+      spotifyApi
+        .skipToPrevious({ device_id: deviceId })
+        .then(() => {
+          setTimeout(() => this.getNowPlaying(), 500);
+        })
+        .catch(e => {
+          this.setState({
+            loadError: true,
+          });
+        });
     }
   }
 
@@ -150,7 +205,9 @@ class App extends Component {
     return (
       <div className="App">
         {!this.state.loggedIn || this.state.loadError ? (
-          <a href="http://localhost:8888"> Login to Spotify </a>
+          <a href="http://localhost:8888" className="loginButton">
+            Login to Spotify
+          </a>
         ) : (
           <div>
             <div>
@@ -161,9 +218,13 @@ class App extends Component {
               />
             </div>
             <div className="trackInfo">
-              <strong>{this.state.nowPlaying.artist}</strong>{' '}{this.state.nowPlaying.name}
+              <strong>{this.state.nowPlaying.artist}</strong>{" "}
+              {this.state.nowPlaying.name}
             </div>
-            <button className="controlButton" onClick={() => this.skipTrack("previous")}>
+            <button
+              className="controlButton"
+              onClick={() => this.skipTrack("previous")}
+            >
               <FaBackward />
               <span className="srOnly">Previous Track</span>
             </button>
@@ -175,52 +236,59 @@ class App extends Component {
                 <span className="srOnly">Play</span>
               )}
             </button>
-            <button className="controlButton" onClick={() => this.skipTrack("next")}>
+            <button
+              className="controlButton"
+              onClick={() => this.skipTrack("next")}
+            >
               <FaForward />
               <span className="srOnly">Next Track</span>
             </button>
             <div>
-              <input
-                value={searchValue}
-                onChange={event =>
-                  this.setState({
-                    searchValue: event.target.value,
-                  })
-                }
-              />
-              <button
-                className="searchButton"
-                onClick={this.searchSpotify}
-                disabled={fetchingSearchResults}
-              >
-                <FaSearch />
-                <span className="srOnly">Find Artist</span>
-              </button>
+              <form className="searchForm" onSubmit={this.searchSpotify}>
+                <button
+                  className="searchButton"
+                  onClick={this.searchSpotify}
+                  disabled={fetchingSearchResults}
+                >
+                  <FaSearch />
+                  <span className="srOnly">Find Artist</span>
+                </button>
+                <input
+                  value={searchValue}
+                  onChange={event => {
+                    this.setState({
+                      searchValue: event.target.value,
+                    });
+                  }}
+                />
+              </form>
             </div>
             {searchResults.artists.length > 0 && (
               <div>
-              <h3> Artists </h3>
-              <hr />
-              <div className="resultsContainer">
-                {searchResults.artists.map(artist => (
-                  <div className="artistItem" key={artist.id}>
-                    <img
-                      src={
-                        artist.images.length > 0
-                          ? artist.images[0].url
-                          : "http://via.placeholder.com/75x75"
-                      }
-                      alt={artist.name}
-                      className="artistImage"
-                      width="75"
-                      height="75"
-                    />
-                    <button onClick={() => this.playArtist(artist.id)}>
-                      {artist.name}
-                    </button>
-                  </div>
-                ))}
-              </div>
+                <h2> Artists </h2>
+                <div className="resultsContainer">
+                  {searchResults.artists.map(artist => (
+                    <div
+                      onClick={() => this.playArtist(artist.id)}
+                      className="artistItem"
+                      key={artist.id}
+                    >
+                      <img
+                        src={
+                          artist.images.length > 0 ? artist.images[0].url : logo
+                        }
+                        alt={artist.name}
+                        className="artistImage"
+                        width="75"
+                        height="75"
+                      />
+                      <div className="playButton">
+                        <FaPlay />
+                      </div>
+                      <button>{artist.name}</button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
