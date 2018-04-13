@@ -60,7 +60,7 @@ class App extends Component {
             },
             isPlaying: is_playing,
             deviceId: device.id,
-            updatePlayerMs: (item.duration_ms - progress_ms) + 100
+            updatePlayerMs: item.duration_ms - progress_ms + 100,
           });
         } else {
           this.setState({
@@ -213,7 +213,10 @@ class App extends Component {
           </a>
         ) : (
           <div>
-            {isPlaying && setTimeout(() => this.getNowPlaying(), updatePlayerMs)}
+            <div className="srOnly">
+              {isPlaying &&
+                setTimeout(() => this.getNowPlaying(), updatePlayerMs)}
+            </div>
             <div>
               <img
                 alt={nowPlaying.name}
