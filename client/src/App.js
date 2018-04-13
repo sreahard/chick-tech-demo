@@ -208,7 +208,7 @@ class App extends Component {
     return (
       <div className="App">
         {!loggedIn ? (
-          <a href="http://localhost:8888" className="loginButton">
+          <a href="http://localhost:8888/login" className="loginButton">
             Login to Spotify
           </a>
         ) : (

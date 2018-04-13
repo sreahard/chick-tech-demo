@@ -4,8 +4,8 @@
   "description": "Basic examples of the Spotify authorization flows through OAuth 2",
   "version": "0.0.2",
   "scripts": {
-    "client": "cd ../client && yarn start",
-    "server": "cd authorization_code && nodemon app.js",
+    "client": "cd client && yarn start",
+    "server": "nodemon app.js",
     "start": "yarn server & yarn client"
   },
   "dependencies": {
