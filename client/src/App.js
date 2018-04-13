@@ -31,6 +31,7 @@ class App extends Component {
       searchValue: "",
       searchResults: { albums: [], artists: [], playlists: [], tracks: [] },
       fetchingSearchResults: false,
+      updatePlayerMs: null,
     };
     this.getNowPlaying = this.getNowPlaying.bind(this);
     this.skipTrack = this.skipTrack.bind(this);
@@ -49,9 +50,8 @@ class App extends Component {
     spotifyApi
       .getMyCurrentPlaybackState()
       .then(response => {
-        console.log(response.error);
         if (response) {
-          const { item, device, is_playing } = response;
+          const { item, device, is_playing, progress_ms } = response;
           this.setState({
             nowPlaying: {
               name: item.name,
@@ -60,6 +60,7 @@ class App extends Component {
             },
             isPlaying: is_playing,
             deviceId: device.id,
+            updatePlayerMs: (item.duration_ms - progress_ms) + 100
           });
         } else {
           this.setState({
@@ -201,6 +202,7 @@ class App extends Component {
       searchResults,
       loggedIn,
       nowPlaying,
+      updatePlayerMs,
     } = this.state;
     const icon = isPlaying ? "pause" : "play";
     return (
@@ -211,6 +213,7 @@ class App extends Component {
           </a>
         ) : (
           <div>
+            {isPlaying && setTimeout(() => this.getNowPlaying(), updatePlayerMs)}
             <div>
               <img
                 alt={nowPlaying.name}
