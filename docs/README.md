@@ -35,13 +35,19 @@ We’ll use and modify an example provided by Spotify. You can download it here:
 
 Once you have the .zip file downloaded to your `chick-tech-spotify-demo` folder, extract it and rename the folder `server`
 
+We will need to install the packages provided with the example, we can do that in the terminal
+
+```
+cd server && npm install
+```
+
 You’ll notice it’s separated into three directories, one for each authorization flow. Since we’ll be using authorization_code, navigate to that one and open app.js in your favourite code editor. Right below the imports, there are three variables we need to set, client_id, client_secret, and redirect_uri. Paste the text that you copied earlier.
 ```
 /* auth-server/authorization_code/app.js */
 var client_id = ‘CLIENT_ID’; // Your client id
 var client_secret = ‘CLIENT_SECRET’; // Your secret
 var redirect_uri = ‘REDIRECT_URI’; // Your redirect uri
-Start it up by running `nodemon authorization_code/app.js`. Open up your browser and you should see a log in button.
+Start it up by running `node authorization_code/app.js`. Open up your browser and you should see a log in button.
 ```
 
 When you click it, it should take you to Spotify’s Login page. Once you’re logged in, it will send you back to your redirect URI. You should then see your Spotify account information, as well as your access token and refresh token.
