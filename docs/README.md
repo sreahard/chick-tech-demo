@@ -215,6 +215,24 @@ getNowPlaying(){
       }));
 }
 ```
+
+In order to be able to use the function you will need to bind it to the React Component at the top of the file in the construtor.
+```
+/* client/src/App.js */
+constructor(){
+    super();
+    const params = querystring.parse(window.location.hash);
+    const token = params.access_token;
+    if (token) {
+      spotifyApi.setAccessToken(token);
+    }
+    this.state = {
+      loggedIn: token ? true : false,
+      nowPlaying: { name: 'Not Checked', albumArt: '' }
+    }
+    this.getNowPlaying = this.getNowPlaying.bind(this)
+  }
+```
 The last thing you’ll need to do is set up some divs to show our data, and a button to trigger geNowplaying. The binary operator is to make sure it only gets rendered if you’re logged in. And to only show the login link if you are logged out. I like to destructure my objects at the top of my functions, I think it makes the code easier to read and I don't have to type as much :)
 ```
 /* client/src/App.js */
@@ -227,7 +245,7 @@ render() {
         Now Playing: {nowPlaying.name}
       </div>
       <div>
-        <img src={nowPlaying.albumArt} style={{ height: 150 }}/>
+        <img src={nowPlaying.albumArt}/>
       </div>
       {loggedIn &&
         <button onClick={() => this.getNowPlaying()}>
