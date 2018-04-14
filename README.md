@@ -16,18 +16,17 @@ There are two parts to it, the auth-server, and the client.
 
 
 ### 2)  Start Auth Server
-- Navigate to the auth-server directory `cd server/server`
 - Install the dependencies `npm install`
-- In the authorization_code create a .env file
+- Create a .env file
 - Add this to the .env file
 ```
 SPOTIFY_CLIENT_ID = 'Your client id'
 SPOTIFY_CLIENT_SECRET = 'Your client secret'
 ```
-- Run the Server `node authorization_code/app.js`
+- Run the Server `node app.js`
 
 ### 3)  Start Client
-- Navigate to the auth-server directory `cd client`
+- Navigate to the client directory `cd client`
 - Install the dependencies `npm install`
 - Run the Server `npm start`
 
@@ -35,4 +34,4 @@ SPOTIFY_CLIENT_SECRET = 'Your client secret'
 - Make sure you have a song playing (or paused) on a Spotify app
 - Visit http://localhost:3000
 - Click 'Log in with Spotify' and log in
-- You should be re-directed to the Spotify App and see what you are currently playing
+- You should be re-directed to this Spotify App and be able to control your Spotify play back and search for artists to play, try to search for and play Dave Matthews Band, I dare you!
