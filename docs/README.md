@@ -50,7 +50,8 @@ We are going to now install a tool called nodemon that will keep our node server
 In your terminal run this command 
 `npm install -g nodemon`
 
-Now we can start our server with this command `nodemon authorization_code/app.js`. 
+Now we can start our server with this command `nodemon authorization_code/app.js`. We are going to keep this server running for the rest of the demo, so open a new terminal widow for other commands we need to run so you don't accidentally turn off this server.
+
 Open up your browser and when you go to [http://localhost:8888/](http://localhost:8888/) you should see a log in button.
 
 When you click it, it should take you to Spotify’s Login page. Once you’re logged in, it will send you back to your redirect URI. You should then see your Spotify account information, as well as your access token and refresh token. You will notice the url will change and have parameters in it that have been passed from the api request.
